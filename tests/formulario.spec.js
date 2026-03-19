@@ -12,10 +12,7 @@ test('debe registrar un usuario correctamente', async ({ page }) => {
   // Seleccionar el sexo
   await page.selectOption('#sexo', 'masculino');
 
-  // Marcar los términos y condiciones
-  await page.check('#terminos');
-
-  // Capturar el log de consola para verificar el envío
+  // Capturar el log de consola
   const consoleMessages = [];
   page.on('console', msg => consoleMessages.push(msg.text()));
 

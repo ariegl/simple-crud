@@ -36,7 +36,7 @@ const pool = mysql.createPool(dbConfig);
 // CREATE: Add a new user
 app.post('/api/usuarios', async (req, res) => {
   try {
-    const { nombreCompleto, edad, sexo, terminos } = req.body;
+    const { nombreCompleto, edad, sexo } = req.body;
     
     // Validation: Ensure required fields are present
     if (!nombreCompleto || !edad || !sexo) {
@@ -44,8 +44,8 @@ app.post('/api/usuarios', async (req, res) => {
     }
 
     const [result] = await pool.execute(
-      'INSERT INTO usuarios (nombre_completo, edad, sexo, terminos) VALUES (?, ?, ?, ?)',
-      [nombreCompleto, edad, sexo, terminos ? 1 : 0]
+      'INSERT INTO usuarios (nombre_completo, edad, sexo) VALUES (?, ?, ?)',
+      [nombreCompleto, edad, sexo]
     );
 
     res.status(201).json({ id: result.insertId, message: 'Usuario creado exitosamente' });
@@ -59,12 +59,7 @@ app.post('/api/usuarios', async (req, res) => {
 app.get('/api/usuarios', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM usuarios');
-    // Convert terminos from 0/1 back to boolean for consistency if needed, though 0/1 is fine.
-    const users = rows.map(user => ({
-      ...user,
-      terminos: Boolean(user.terminos)
-    }));
-    res.json(users);
+    res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error fetching users' });
@@ -81,11 +76,7 @@ app.get('/api/usuarios/:id', async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    const user = {
-      ...rows[0],
-      terminos: Boolean(rows[0].terminos)
-    };
-    res.json(user);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error fetching user' });
@@ -96,7 +87,7 @@ app.get('/api/usuarios/:id', async (req, res) => {
 app.put('/api/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombreCompleto, edad, sexo, terminos } = req.body;
+    const { nombreCompleto, edad, sexo } = req.body;
 
     // Check if user exists first
     const [check] = await pool.query('SELECT id FROM usuarios WHERE id = ?', [id]);
@@ -105,8 +96,8 @@ app.put('/api/usuarios/:id', async (req, res) => {
     }
 
     await pool.execute(
-      'UPDATE usuarios SET nombre_completo = ?, edad = ?, sexo = ?, terminos = ? WHERE id = ?',
-      [nombreCompleto, edad, sexo, terminos ? 1 : 0, id]
+      'UPDATE usuarios SET nombre_completo = ?, edad = ?, sexo = ? WHERE id = ?',
+      [nombreCompleto, edad, sexo, id]
     );
 
     res.json({ message: 'Usuario actualizado exitosamente' });

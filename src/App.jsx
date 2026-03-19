@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 
 function App() {
   const [formData, setFormData] = useState({
     nombreCompleto: '',
     edad: '',
-    sexo: '',
-    terminos: false
+    sexo: ''
   });
   const navigate = useNavigate();
 
@@ -34,8 +34,7 @@ function App() {
         setFormData({
           nombreCompleto: '',
           edad: '',
-          sexo: '',
-          terminos: false
+          sexo: ''
         });
         navigate('/home');
       } else {
@@ -49,6 +48,9 @@ function App() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-200 p-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title text-center justify-center text-primary text-2xl mb-4 font-bold">Registro de Usuario</h2>
@@ -105,21 +107,6 @@ function App() {
                 <option value="femenino">Femenino</option>
                 <option value="otro">Otro</option>
               </select>
-            </div>
-
-            <div className="form-control mt-2">
-              <label className="label cursor-pointer justify-start gap-3 hover:bg-base-200 p-2 rounded-lg transition-colors">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-primary"
-                  id="terminos"
-                  name="terminos"
-                  checked={formData.terminos}
-                  onChange={handleChange}
-                  required
-                />
-                <span className="label-text select-none">Acepto los términos y condiciones</span>
-              </label>
             </div>
 
             <div className="card-actions flex-col mt-6 gap-3">

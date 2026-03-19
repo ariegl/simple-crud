@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 
 function Home() {
   const [usuarios, setUsuarios] = useState([]);
@@ -102,12 +103,15 @@ function Home() {
             <h1 className="text-4xl font-extrabold text-base-content tracking-tight">Dashboard Usuarios</h1>
             <p className="text-base-content/60 mt-1">Gestión y visualización de registros</p>
           </div>
-          <Link to="/" className="btn btn-primary gap-2 shadow-lg shadow-primary/30 hover:scale-105 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Nuevo Usuario
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link to="/" className="btn btn-primary gap-2 shadow-lg shadow-primary/30 hover:scale-105 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Nuevo Usuario
+            </Link>
+          </div>
         </div>
 
         {/* Stats Section */}
@@ -206,7 +210,6 @@ function Home() {
                     <th className="py-4">Nombre Completo</th>
                     <th className="py-4">Edad</th>
                     <th className="py-4">Sexo</th>
-                    <th className="py-4">Términos</th>
                     <th className="py-4 pr-6 text-center">Acciones</th>
                   </tr>
                 </thead>
@@ -226,18 +229,6 @@ function Home() {
                           {user.sexo === 'femenino' && 'Femenino'} 
                           {user.sexo !== 'masculino' && user.sexo !== 'femenino' && user.sexo}
                         </span>
-                      </td>
-                      <td>
-                        {user.terminos ? (
-                          <div className="badge badge-success gap-1 bg-green-100 text-green-700 border-transparent p-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-                            Aceptado
-                          </div>
-                        ) : (
-                          <div className="badge badge-error gap-1 bg-red-100 text-red-700 border-transparent p-3">
-                             Pendiente
-                          </div>
-                        )}
                       </td>
                       <td className="pr-6 text-center">
                         <button 

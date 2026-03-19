@@ -29,8 +29,4 @@ test('debe validar que los campos son requeridos', async ({ page }) => {
   // Seleccionar el sexo e intentar enviar
   await page.selectOption('#sexo', 'masculino');
   await page.click('.submit-button');
-
-  // Verificar que los términos siguen siendo requeridos
-  const terminosRequeridos = await page.$eval('#terminos', el => el.validity.valueMissing);
-  expect(terminosRequeridos).toBeTruthy();
 });
