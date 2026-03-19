@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 
 function Home() {
@@ -10,6 +10,14 @@ function Home() {
   const [toast, setToast] = useState(null); // { type: 'success' | 'error', message: string }
   const [deleteId, setDeleteId] = useState(null);
   const modalRef = useRef(null);
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
 
   useEffect(() => {
     fetchUsuarios();
@@ -100,12 +108,15 @@ function Home() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 border-b border-base-content/10 pb-6">
           <div>
-            <h1 className="text-4xl font-extrabold text-base-content tracking-tight">Dashboard Usuarios</h1>
-            <p className="text-base-content/60 mt-1">Gestión y visualización de registros</p>
+            <h1 className="text-4xl font-extrabold text-base-content tracking-tight">Hola, {user.nombre_completo || 'Usuario'}</h1>
+            <p className="text-base-content/60 mt-1">Dashboard de gestión de registros</p>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link to="/" className="btn btn-primary gap-2 shadow-lg shadow-primary/30 hover:scale-105 transition-transform">
+            <button onClick={handleLogout} className="btn btn-ghost text-error">
+              Cerrar Sesión
+            </button>
+            <Link to="/signup" className="btn btn-primary gap-2 shadow-lg shadow-primary/30 hover:scale-105 transition-transform">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>

@@ -31,6 +31,33 @@ const pool = mysql.createPool(dbConfig);
   }
 })();
 
+// --- AUTH Endpoints ---
+
+// LOGIN: Verify user credentials
+app.post('/api/login', async (req, res) => {
+  try {
+    const { nombreCompleto, password } = req.body;
+
+    if (!nombreCompleto || !password) {
+      return res.status(400).json({ error: 'Missing nombreCompleto or password' });
+    }
+
+    const [rows] = await pool.query(
+      'SELECT id, nombre_completo, edad, sexo FROM usuarios WHERE nombre_completo = ? AND password = ?',
+      [nombreCompleto, password]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    res.json({ message: 'Login exitoso', user: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error during login' });
+  }
+});
+
 // --- CRUD Endpoints for 'usuarios' ---
 
 // CREATE: Add a new user
