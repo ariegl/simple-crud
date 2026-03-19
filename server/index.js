@@ -36,16 +36,16 @@ const pool = mysql.createPool(dbConfig);
 // CREATE: Add a new user
 app.post('/api/usuarios', async (req, res) => {
   try {
-    const { nombreCompleto, edad, sexo } = req.body;
+    const { nombreCompleto, edad, sexo, password } = req.body;
     
     // Validation: Ensure required fields are present
-    if (!nombreCompleto || !edad || !sexo) {
-      return res.status(400).json({ error: 'Missing required fields: nombreCompleto, edad, sexo' });
+    if (!nombreCompleto || !edad || !sexo || !password) {
+      return res.status(400).json({ error: 'Missing required fields: nombreCompleto, edad, sexo, password' });
     }
 
     const [result] = await pool.execute(
-      'INSERT INTO usuarios (nombre_completo, edad, sexo) VALUES (?, ?, ?)',
-      [nombreCompleto, edad, sexo]
+      'INSERT INTO usuarios (nombre_completo, edad, sexo, password) VALUES (?, ?, ?, ?)',
+      [nombreCompleto, edad, sexo, password]
     );
 
     res.status(201).json({ id: result.insertId, message: 'Usuario creado exitosamente' });
@@ -87,7 +87,7 @@ app.get('/api/usuarios/:id', async (req, res) => {
 app.put('/api/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombreCompleto, edad, sexo } = req.body;
+    const { nombreCompleto, edad, sexo, password } = req.body;
 
     // Check if user exists first
     const [check] = await pool.query('SELECT id FROM usuarios WHERE id = ?', [id]);
@@ -96,8 +96,8 @@ app.put('/api/usuarios/:id', async (req, res) => {
     }
 
     await pool.execute(
-      'UPDATE usuarios SET nombre_completo = ?, edad = ?, sexo = ? WHERE id = ?',
-      [nombreCompleto, edad, sexo, id]
+      'UPDATE usuarios SET nombre_completo = ?, edad = ?, sexo = ?, password = ? WHERE id = ?',
+      [nombreCompleto, edad, sexo, password, id]
     );
 
     res.json({ message: 'Usuario actualizado exitosamente' });
