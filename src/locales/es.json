@@ -1,0 +1,48 @@
+{
+  "common": {
+    "login": "Iniciar Sesión",
+    "signup": "Registrarse",
+    "logout": "Cerrar Sesión",
+    "actions": "Acciones",
+    "actions.delete": "Eliminar",
+    "username": "Nombre de Usuario",
+    "password": "Contraseña",
+    "age": "Edad",
+    "gender": "Sexo",
+    "male": "Masculino",
+    "female": "Femenino",
+    "other": "Otro",
+    "submit": "Registrar",
+    "cancel": "Cancelar",
+    "confirmDelete": "¿Eliminar registro?",
+    "yesDelete": "Sí, eliminar",
+    "error": "Error",
+    "success": "Éxito",
+    "or": "O",
+    "noAccount": "¿No tienes cuenta?",
+    "registeredDate": "Fecha de Registro",
+    "hello": "Hola",
+    "dashboardDesc": "Dashboard de gestión de registros",
+    "listTitle": "Listado de Registros",
+    "searchPlaceholder": "Buscar por nombre de usuario...",
+    "newUser": "Nuevo Usuario",
+    "years": "años"
+  },
+  "login": {
+    "title": "Iniciar Sesión",
+    "welcome": "¡Bienvenido de nuevo!",
+    "registerLink": "Registrarse"
+  },
+  "signup": {
+    "title": "Registro de Usuario",
+    "minChars": "Mínimo 8 caracteres",
+    "loginLink": "Ir al Login",
+    "registeredSuccess": "Usuario registrado exitosamente",
+    "registeredError": "Error al registrar usuario"
+  },
+  "home": {
+    "deleteSuccess": "Usuario eliminado correctamente",
+    "deleteError": "Error al eliminar: ",
+    "noResults": "No se encontraron resultados"
+  }
+}

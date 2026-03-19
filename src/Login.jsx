@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
 
 function Login() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -37,7 +40,7 @@ function Login() {
         localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/home');
       } else {
-        alert(data.error || 'Error al iniciar sesión');
+        alert(data.error || t('common.error'));
       }
     } catch (error) {
       console.error('Error:', error);
@@ -46,25 +49,26 @@ function Login() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-200 p-4">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSelector />
         <ThemeToggle />
       </div>
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title text-center justify-center text-primary text-2xl mb-4 font-bold">Iniciar Sesión</h2>
+          <h2 className="card-title text-center justify-center text-primary text-2xl mb-4 font-bold">{t('login.title')}</h2>
           <form onSubmit={handleSubmit} className="form-control gap-4">
             <div className="form-control w-full">
-              <label className="label"><span className="label-text font-semibold">Nombre de Usuario</span></label>
+              <label className="label"><span className="label-text font-semibold">{t('common.username')}</span></label>
               <input type="text" name="username" value={formData.username} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required />
             </div>
             <div className="form-control w-full">
-              <label className="label"><span className="label-text font-semibold">Contraseña</span></label>
+              <label className="label"><span className="label-text font-semibold">{t('common.password')}</span></label>
               <input type="password" name="password" value={formData.password} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required />
             </div>
             <div className="card-actions flex-col mt-6 gap-3">
-              <button type="submit" className="btn btn-primary w-full shadow-md hover:shadow-lg transition-shadow">Entrar</button>
-              <div className="divider text-sm text-base-content/50 my-1">¿No tienes cuenta?</div>
-              <Link to="/signup" className="btn btn-outline btn-secondary w-full">Registrarse</Link>
+              <button type="submit" className="btn btn-primary w-full shadow-md hover:shadow-lg transition-shadow">{t('common.login')}</button>
+              <div className="divider text-sm text-base-content/50 my-1">{t('common.noAccount')}</div>
+              <Link to="/signup" className="btn btn-outline btn-secondary w-full">{t('common.signup')}</Link>
             </div>
           </form>
         </div>

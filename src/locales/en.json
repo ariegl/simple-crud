@@ -1,0 +1,48 @@
+{
+  "common": {
+    "login": "Login",
+    "signup": "Register",
+    "logout": "Logout",
+    "actions": "Actions",
+    "actions.delete": "Delete",
+    "username": "Username",
+    "password": "Password",
+    "age": "Age",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete record?",
+    "yesDelete": "Yes, delete",
+    "error": "Error",
+    "success": "Success",
+    "or": "OR",
+    "noAccount": "Don't have an account?",
+    "registeredDate": "Registered Date",
+    "hello": "Hello",
+    "dashboardDesc": "Record management dashboard",
+    "listTitle": "Record Listing",
+    "searchPlaceholder": "Search by username...",
+    "newUser": "New User",
+    "years": "years"
+  },
+  "login": {
+    "title": "Login",
+    "welcome": "Welcome back!",
+    "registerLink": "Register"
+  },
+  "signup": {
+    "title": "User Registration",
+    "minChars": "Minimum 8 characters",
+    "loginLink": "Go to Login",
+    "registeredSuccess": "User registered successfully",
+    "registeredError": "Error registering user"
+  },
+  "home": {
+    "deleteSuccess": "User deleted successfully",
+    "deleteError": "Error deleting: ",
+    "noResults": "No results found"
+  }
+}

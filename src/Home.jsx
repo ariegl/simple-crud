@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
 
 function Home() {
+  const { t, i18n } = useTranslation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,9 +49,9 @@ function Home() {
       const response = await fetch(`http://localhost:3000/api/usuarios/${deleteId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Error deleting user');
       setUsers(users.filter(u => u.id !== deleteId));
-      setToast({ type: 'success', message: 'Usuario eliminado correctamente' });
+      setToast({ type: 'success', message: t('home.deleteSuccess') });
     } catch (err) {
-      setToast({ type: 'error', message: err.message });
+      setToast({ type: 'error', message: t('home.deleteError') + err.message });
     } finally {
       setDeleteId(null);
       if (modalRef.current) modalRef.current.close();
@@ -66,44 +69,38 @@ function Home() {
       <div className="container mx-auto max-w-6xl space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 border-b border-base-content/10 pb-6">
           <div>
-            <h1 className="text-4xl font-extrabold text-base-content tracking-tight">Hola, {currentUser.username || 'Usuario'}</h1>
-            <p className="text-base-content/60 mt-1">Dashboard de gestión de registros</p>
+            <h1 className="text-4xl font-extrabold text-base-content tracking-tight">{t('common.hello')}, {currentUser.username || t('common.username')}</h1>
+            <p className="text-base-content/60 mt-1">{t('common.dashboardDesc')}</p>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             <ThemeToggle />
-            <button onClick={handleLogout} className="btn btn-ghost text-error">Cerrar Sesión</button>
-            <Link to="/signup" className="btn btn-primary gap-2 shadow-lg shadow-primary/30 hover:scale-105 transition-transform">Nuevo Usuario</Link>
+            <button onClick={handleLogout} className="btn btn-ghost text-error">{t('common.logout')}</button>
+            <Link to="/signup" className="btn btn-primary gap-2 shadow-lg shadow-primary/30 hover:scale-105 transition-transform">{t('common.newUser')}</Link>
           </div>
         </div>
 
         <div className="card bg-base-100 shadow-xl overflow-hidden border border-base-200">
           <div className="p-4 border-b border-base-200 bg-base-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h2 className="text-xl font-bold px-2">Listado de Registros</h2>
-            <input type="text" placeholder="Buscar por nombre de usuario..." className="input input-bordered input-sm w-full max-w-xs" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <h2 className="text-xl font-bold px-2">{t('common.listTitle')}</h2>
+            <input type="text" placeholder={t('common.searchPlaceholder')} className="input input-bordered input-sm w-full max-w-xs" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
 
           <div className="overflow-x-auto w-full">
             <table className="table table-zebra w-full">
               <thead className="bg-base-200/50 text-base-content/70 text-xs uppercase font-bold tracking-wider">
-                <tr>
-                  <th className="py-4 pl-6">ID</th>
-                  <th className="py-4">Username</th>
-                  <th className="py-4">Age</th>
-                  <th className="py-4">Gender</th>
-                  <th className="py-4">Registered Date</th>
-                  <th className="py-4 pr-6 text-center">Actions</th>
-                </tr>
+                <tr><th className="py-4 pl-6">ID</th><th className="py-4">{t('common.username')}</th><th className="py-4">{t('common.age')}</th><th className="py-4">{t('common.gender')}</th><th className="py-4">{t('common.registeredDate')}</th><th className="py-4 pr-6 text-center">{t('common.actions')}</th></tr>
               </thead>
               <tbody className="text-sm">
                 {filteredUsers.map((u) => (
                   <tr key={u.id} className="hover">
                     <th className="pl-6 font-mono opacity-50">#{u.id}</th>
                     <td className="font-semibold text-base">{u.username}</td>
-                    <td>{u.age} years</td>
-                    <td><span className="badge badge-sm font-medium py-3 px-3 badge-info bg-blue-100 text-blue-700 border-transparent">{u.gender}</span></td>
-                    <td>{u.registered_date ? new Date(u.registered_date).toLocaleString() : 'N/A'}</td>
+                    <td>{u.age} {t('common.years')}</td>
+                    <td><span className="badge badge-sm font-medium py-3 px-3 badge-info bg-blue-100 text-blue-700 border-transparent">{u.gender === 'male' ? t('common.male') : u.gender === 'female' ? t('common.female') : t('common.other')}</span></td>
+                    <td>{u.registered_date ? new Date(u.registered_date).toLocaleString(i18n.language) : 'N/A'}</td>
                     <td className="pr-6 text-center">
-                      <button onClick={() => confirmDelete(u.id)} className="btn btn-ghost btn-sm text-error">Eliminar</button>
+                      <button onClick={() => confirmDelete(u.id)} className="btn btn-ghost btn-sm text-error">{t('common.actions.delete')}</button>
                     </td>
                   </tr>
                 ))}
@@ -115,10 +112,10 @@ function Home() {
 
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
-          <h3 className="font-bold text-lg text-error">¿Eliminar registro?</h3>
+          <h3 className="font-bold text-lg text-error">{t('common.confirmDelete')}</h3>
           <div className="modal-action">
-            <button className="btn btn-ghost mr-2" onClick={() => setDeleteId(null)}>Cancelar</button>
-            <button className="btn btn-error" onClick={handleDelete}>Sí, eliminar</button>
+            <button className="btn btn-ghost mr-2" onClick={() => setDeleteId(null)}>{t('common.cancel')}</button>
+            <button className="btn btn-error" onClick={handleDelete}>{t('common.yesDelete')}</button>
           </div>
         </div>
       </dialog>

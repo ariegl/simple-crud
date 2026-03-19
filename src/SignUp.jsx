@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
 
 function SignUp() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     age: '',
@@ -38,10 +41,10 @@ function SignUp() {
       });
 
       if (response.ok) {
-        alert('Usuario registrado exitosamente');
+        alert(t('signup.registeredSuccess'));
         navigate('/login');
       } else {
-        alert('Error al registrar usuario');
+        alert(t('signup.registeredError'));
       }
     } catch (error) {
       console.error('Error:', error);
@@ -50,38 +53,42 @@ function SignUp() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-200 p-4">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSelector />
         <ThemeToggle />
       </div>
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title text-center justify-center text-primary text-2xl mb-4 font-bold">Registro de Usuario</h2>
+          <h2 className="card-title text-center justify-center text-primary text-2xl mb-4 font-bold">{t('signup.title')}</h2>
           <form onSubmit={handleSubmit} className="form-control gap-4">
             <div className="form-control w-full">
-              <label className="label"><span className="label-text font-semibold">Nombre de Usuario</span></label>
+              <label className="label"><span className="label-text font-semibold">{t('common.username')}</span></label>
               <input type="text" name="username" value={formData.username} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required />
             </div>
             <div className="form-control w-full">
-              <label className="label"><span className="label-text font-semibold">Edad</span></label>
+              <label className="label"><span className="label-text font-semibold">{t('common.age')}</span></label>
               <input type="number" name="age" value={formData.age} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required min="1" max="120" />
             </div>
             <div className="form-control w-full">
-              <label className="label"><span className="label-text font-semibold">Sexo</span></label>
+              <label className="label"><span className="label-text font-semibold">{t('common.gender')}</span></label>
               <select name="gender" value={formData.gender} onChange={handleChange} className="select select-bordered w-full focus:select-primary" required>
-                <option value="" disabled>Seleccione una opción...</option>
-                <option value="male">Masculino</option>
-                <option value="female">Femenino</option>
-                <option value="other">Otro</option>
+                <option value="" disabled>{t('common.searchPlaceholder')}</option>
+                <option value="male">{t('common.male')}</option>
+                <option value="female">{t('common.female')}</option>
+                <option value="other">{t('common.other')}</option>
               </select>
             </div>
             <div className="form-control w-full">
-              <label className="label"><span className="label-text font-semibold">Contraseña</span></label>
+              <label className="label"><span className="label-text font-semibold">{t('common.password')}</span></label>
               <input type="password" name="password" value={formData.password} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required minLength="8" />
+              <label className="label">
+                <span className="label-text-alt">{t('signup.minChars')}</span>
+              </label>
             </div>
             <div className="card-actions flex-col mt-6 gap-3">
-              <button type="submit" className="btn btn-primary w-full shadow-md hover:shadow-lg transition-shadow">Registrar</button>
-              <div className="divider text-sm text-base-content/50 my-1">O</div>
-              <Link to="/login" className="btn btn-outline btn-secondary w-full">Ir al Login</Link>
+              <button type="submit" className="btn btn-primary w-full shadow-md hover:shadow-lg transition-shadow">{t('common.submit')}</button>
+              <div className="divider text-sm text-base-content/50 my-1">{t('common.or')}</div>
+              <Link to="/login" className="btn btn-outline btn-secondary w-full">{t('signup.loginLink')}</Link>
             </div>
           </form>
         </div>
