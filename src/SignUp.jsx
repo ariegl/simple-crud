@@ -4,9 +4,9 @@ import ThemeToggle from './ThemeToggle';
 
 function SignUp() {
   const [formData, setFormData] = useState({
-    nombreCompleto: '',
-    edad: '',
-    sexo: '',
+    username: '',
+    age: '',
+    gender: '',
     password: ''
   });
   const navigate = useNavigate();
@@ -24,42 +24,27 @@ function SignUp() {
     const data = encoder.encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-512', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const hashedPassword = await hashPassword(formData.password);
-      const dataToSend = {
-        ...formData,
-        password: hashedPassword
-      };
-
       const response = await fetch('http://localhost:3000/api/usuarios', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, password: hashedPassword }),
       });
 
       if (response.ok) {
         alert('Usuario registrado exitosamente');
-        setFormData({
-          nombreCompleto: '',
-          edad: '',
-          sexo: '',
-          password: ''
-        });
-        navigate('/home');
+        navigate('/login');
       } else {
         alert('Error al registrar usuario');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error de conexión');
     }
   };
 
@@ -72,87 +57,31 @@ function SignUp() {
         <div className="card-body">
           <h2 className="card-title text-center justify-center text-primary text-2xl mb-4 font-bold">Registro de Usuario</h2>
           <form onSubmit={handleSubmit} className="form-control gap-4">
-            
             <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text font-semibold">Nombre Completo</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Escribe tu nombre completo"
-                className="input input-bordered w-full focus:input-primary"
-                id="nombreCompleto"
-                name="nombreCompleto"
-                value={formData.nombreCompleto}
-                onChange={handleChange}
-                required
-              />
+              <label className="label"><span className="label-text font-semibold">Nombre de Usuario</span></label>
+              <input type="text" name="username" value={formData.username} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required />
             </div>
-
             <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text font-semibold">Edad</span>
-              </label>
-              <input
-                type="number"
-                placeholder="Ej: 25"
-                className="input input-bordered w-full focus:input-primary"
-                id="edad"
-                name="edad"
-                value={formData.edad}
-                onChange={handleChange}
-                required
-                min="1"
-                max="120"
-              />
+              <label className="label"><span className="label-text font-semibold">Edad</span></label>
+              <input type="number" name="age" value={formData.age} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required min="1" max="120" />
             </div>
-
             <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text font-semibold">Sexo</span>
-              </label>
-              <select
-                className="select select-bordered w-full focus:select-primary"
-                id="sexo"
-                name="sexo"
-                value={formData.sexo}
-                onChange={handleChange}
-                required
-              >
+              <label className="label"><span className="label-text font-semibold">Sexo</span></label>
+              <select name="gender" value={formData.gender} onChange={handleChange} className="select select-bordered w-full focus:select-primary" required>
                 <option value="" disabled>Seleccione una opción...</option>
-                <option value="masculino">Masculino</option>
-                <option value="femenino">Femenino</option>
-                <option value="otro">Otro</option>
+                <option value="male">Masculino</option>
+                <option value="female">Femenino</option>
+                <option value="other">Otro</option>
               </select>
             </div>
-
             <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text font-semibold">Contraseña</span>
-              </label>
-              <input
-                type="password"
-                placeholder="Mínimo 8 caracteres"
-                className="input input-bordered w-full focus:input-primary"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                minLength="8"
-              />
+              <label className="label"><span className="label-text font-semibold">Contraseña</span></label>
+              <input type="password" name="password" value={formData.password} onChange={handleChange} className="input input-bordered w-full focus:input-primary" required minLength="8" />
             </div>
-
             <div className="card-actions flex-col mt-6 gap-3">
-              <button type="submit" className="btn btn-primary w-full shadow-md hover:shadow-lg transition-shadow">
-                Registrar
-              </button>
-              
+              <button type="submit" className="btn btn-primary w-full shadow-md hover:shadow-lg transition-shadow">Registrar</button>
               <div className="divider text-sm text-base-content/50 my-1">O</div>
-
-              <Link to="/home" className="btn btn-outline btn-secondary w-full">
-                Ver usuarios registrados
-              </Link>
+              <Link to="/login" className="btn btn-outline btn-secondary w-full">Ir al Login</Link>
             </div>
           </form>
         </div>

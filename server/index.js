@@ -13,8 +13,8 @@ app.use(express.json());
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: '', // Assuming no password based on previous command
-  database: 'forms-testing-playwright'
+  password: '', 
+  database: 'simple_crud'
 };
 
 // Create a connection pool
@@ -24,7 +24,7 @@ const pool = mysql.createPool(dbConfig);
 (async () => {
   try {
     const connection = await pool.getConnection();
-    console.log('Connected to MySQL database!');
+    console.log('Connected to MySQL database (simple_crud)!');
     connection.release();
   } catch (err) {
     console.error('Error connecting to MySQL:', err);
@@ -36,48 +36,47 @@ const pool = mysql.createPool(dbConfig);
 // LOGIN: Verify user credentials
 app.post('/api/login', async (req, res) => {
   try {
-    const { nombreCompleto, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!nombreCompleto || !password) {
-      return res.status(400).json({ error: 'Missing nombreCompleto or password' });
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Missing username or password' });
     }
 
     const [rows] = await pool.query(
-      'SELECT id, nombre_completo, edad, sexo FROM usuarios WHERE nombre_completo = ? AND password = ?',
-      [nombreCompleto, password]
+      'SELECT id, username, age, gender FROM users WHERE username = ? AND password = ?',
+      [username, password]
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    res.json({ message: 'Login exitoso', user: rows[0] });
+    res.json({ message: 'Login successful', user: rows[0] });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error during login' });
   }
 });
 
-// --- CRUD Endpoints for 'usuarios' ---
+// --- CRUD Endpoints for 'users' ---
 
 // CREATE: Add a new user
 app.post('/api/usuarios', async (req, res) => {
   try {
-    const { nombreCompleto, edad, sexo, password } = req.body;
+    const { username, age, gender, password } = req.body;
     
-    // Validation: Ensure required fields are present
-    if (!nombreCompleto || !edad || !sexo || !password) {
-      return res.status(400).json({ error: 'Missing required fields: nombreCompleto, edad, sexo, password' });
+    if (!username || !age || !gender || !password) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const registeredDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const registeredAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     const [result] = await pool.execute(
-      'INSERT INTO usuarios (nombre_completo, edad, sexo, password, registered_date) VALUES (?, ?, ?, ?, ?)',
-      [nombreCompleto, edad, sexo, password, registeredDate]
+      'INSERT INTO users (username, age, gender, password, registered_at) VALUES (?, ?, ?, ?, ?)',
+      [username, age, gender, password, registeredAt]
     );
 
-    res.status(201).json({ id: result.insertId, message: 'Usuario creado exitosamente' });
+    res.status(201).json({ id: result.insertId, message: 'User created successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error creating user' });
@@ -87,7 +86,7 @@ app.post('/api/usuarios', async (req, res) => {
 // READ: Get all users
 app.get('/api/usuarios', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios');
+    const [rows] = await pool.query('SELECT * FROM users');
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -95,66 +94,23 @@ app.get('/api/usuarios', async (req, res) => {
   }
 });
 
-// READ: Get a single user by ID
-app.get('/api/usuarios/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [id]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    res.json(rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error fetching user' });
-  }
-});
-
-// UPDATE: Update a user by ID
-app.put('/api/usuarios/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { nombreCompleto, edad, sexo, password } = req.body;
-
-    // Check if user exists first
-    const [check] = await pool.query('SELECT id FROM usuarios WHERE id = ?', [id]);
-    if (check.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    await pool.execute(
-      'UPDATE usuarios SET nombre_completo = ?, edad = ?, sexo = ?, password = ? WHERE id = ?',
-      [nombreCompleto, edad, sexo, password, id]
-    );
-
-    res.json({ message: 'Usuario actualizado exitosamente' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error updating user' });
-  }
-});
-
 // DELETE: Delete a user by ID
 app.delete('/api/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const [result] = await pool.execute('DELETE FROM usuarios WHERE id = ?', [id]);
+    const [result] = await pool.execute('DELETE FROM users WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ message: 'Usuario eliminado exitosamente' });
+    res.json({ message: 'User deleted successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error deleting user' });
   }
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
