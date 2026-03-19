@@ -85,7 +85,14 @@ function Home() {
           <div className="overflow-x-auto w-full">
             <table className="table table-zebra w-full">
               <thead className="bg-base-200/50 text-base-content/70 text-xs uppercase font-bold tracking-wider">
-                <tr><th className="py-4 pl-6">ID</th><th className="py-4">Username</th><th className="py-4">Age</th><th className="py-4">Gender</th><th className="py-4 pr-6 text-center">Actions</th></tr>
+                <tr>
+                  <th className="py-4 pl-6">ID</th>
+                  <th className="py-4">Username</th>
+                  <th className="py-4">Age</th>
+                  <th className="py-4">Gender</th>
+                  <th className="py-4">Registered Date</th>
+                  <th className="py-4 pr-6 text-center">Actions</th>
+                </tr>
               </thead>
               <tbody className="text-sm">
                 {filteredUsers.map((u) => (
@@ -94,6 +101,7 @@ function Home() {
                     <td className="font-semibold text-base">{u.username}</td>
                     <td>{u.age} years</td>
                     <td><span className="badge badge-sm font-medium py-3 px-3 badge-info bg-blue-100 text-blue-700 border-transparent">{u.gender}</span></td>
+                    <td>{u.registered_date ? new Date(u.registered_date).toLocaleString() : 'N/A'}</td>
                     <td className="pr-6 text-center">
                       <button onClick={() => confirmDelete(u.id)} className="btn btn-ghost btn-sm text-error">Eliminar</button>
                     </td>
