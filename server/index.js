@@ -4,6 +4,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Routes
 import authRoutes from './routes/authRoutes.js';
@@ -24,7 +27,7 @@ const io = new Server(httpServer, {
   }
 });
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
