@@ -22,6 +22,7 @@ Una plataforma social moderna construida con React, Express y MySQL que implemen
 ## 📂 Estructura del Proyecto
 
 ```text
+├── database/               # Scripts SQL de la base de datos
 ├── server/                 # Backend Node.js
 │   ├── config/             # Configuración de base de datos
 │   ├── controllers/        # Lógica de negocio (MVC)
@@ -42,25 +43,39 @@ Una plataforma social moderna construida con React, Express y MySQL que implemen
 
 ### 1. Requisitos Previos
 - Node.js (v18 o superior)
-- Servidor MySQL activo.
+- Servidor MySQL activo (XAMPP, WAMP o instalación independiente).
 
 ### 2. Base de Datos
-Crea una base de datos llamada `simple_crud` y asegura la existencia de las tablas (`users`, `roles`, `posts`, `posts_likes`, `posts_comments`, `friendships`, `private_messages`).
+Para inicializar la base de datos, sigue estos pasos:
+1. Crea una base de datos vacía llamada `simple_crud`.
+2. Importa el archivo de esquema ubicado en `/database/database_schema.sql` en tu servidor MySQL. 
+3. Asegúrate de insertar los roles necesarios en la tabla `roles` (ej. `admin`, `super_admin`, `user`, `guest`) para que el sistema funcione correctamente.
 
-### 3. Instalación de dependencias
+### 3. Variables de Entorno (.env)
+Crea un archivo llamado `.env` en la **raíz del proyecto** basándote en el siguiente formato:
+```env
+DB_HOST=localhost
+DB_USER=tu_usuario_mysql
+DB_PASSWORD=tu_password_mysql
+DB_NAME=simple_crud
+PORT=3000
+```
+*Nota: El backend utiliza estas variables para establecer la conexión con la base de datos y definir el puerto del servidor.*
+
+### 4. Instalación de dependencias
 ```bash
 npm install
 ```
 
-### 4. Ejecución
+### 5. Ejecución
 En terminales separadas:
 
-**Servidor:**
+**Servidor (Backend):**
 ```bash
 node server/index.js
 ```
 
-**Cliente:**
+**Cliente (Frontend):**
 ```bash
 npm run dev
 ```
