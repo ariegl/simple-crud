@@ -1,7 +1,29 @@
 import React, { useState } from 'react';
 
-function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers, onStatusUpdate, onAddFriend, onSelectFriend }) {
+function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers, onStatusUpdate, onAddFriend, onSelectFriend, onDeleteFriends }) {
   const [friendUsername, setFriendUsername] = useState('');
+  const [selectedFriends, setSelectedFriends] = useState([]);
+
+  const toggleSelect = (e, friendId) => {
+    e.stopPropagation();
+    setSelectedFriends(prev => 
+      prev.includes(friendId) ? prev.filter(id => id !== friendId) : [...prev, friendId]
+    );
+  };
+
+  const handleDelete = (e, friendId) => {
+    e.stopPropagation();
+    if (window.confirm('¿Eliminar amigo?')) {
+      onDeleteFriends([friendId]);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (window.confirm(`¿Eliminar ${selectedFriends.length} amigos?`)) {
+      onDeleteFriends(selectedFriends);
+      setSelectedFriends([]);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -29,7 +51,12 @@ function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers
 
       <div className="card bg-base-100 shadow-xl border border-base-200">
         <div className="card-body p-4">
-          <h3 className="text-sm font-bold">Amigos</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-bold">Amigos</h3>
+            {selectedFriends.length > 0 && (
+              <button onClick={handleBulkDelete} className="btn btn-error btn-xs">Eliminar ({selectedFriends.length})</button>
+            )}
+          </div>
           <div className="space-y-3 mt-2">
             {friendsList.length === 0 && <p className="text-xs opacity-50">Aún no tienes amigos.</p>}
             {friendsList.map(f => (
@@ -38,15 +65,30 @@ function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers
                 className="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-base-200 cursor-pointer transition-colors group"
                 onClick={() => onSelectFriend(f)}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <input 
+                    type="checkbox" 
+                    className="checkbox checkbox-xs" 
+                    checked={selectedFriends.includes(f.friend_id)}
+                    onChange={(e) => toggleSelect(e, f.friend_id)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
                   <div className={`avatar avatar-xs ${onlineUsers.includes(f.friend_id) ? 'online' : 'offline'}`}>
                     <div className="w-8 rounded-full bg-base-300">{f.profile_image_path && <img src={`http://localhost:3000/${f.profile_image_path}`} />}</div>
                   </div>
-                  <span className="text-xs font-medium group-hover:text-primary transition-colors">{f.username}</span>
+                  <span className="text-xs font-medium group-hover:text-primary transition-colors truncate">{f.username}</span>
                 </div>
-                <span className={`text-[10px] ${onlineUsers.includes(f.friend_id) ? 'text-success' : 'opacity-40'}`}>
-                  {onlineUsers.includes(f.friend_id) ? 'Online' : 'Offline'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] ${onlineUsers.includes(f.friend_id) ? 'text-success' : 'opacity-40'}`}>
+                    {onlineUsers.includes(f.friend_id) ? 'Online' : 'Offline'}
+                  </span>
+                  <button 
+                    onClick={(e) => handleDelete(e, f.friend_id)} 
+                    className="btn btn-ghost btn-xs text-error opacity-0 group-hover:opacity-100 px-1"
+                  >
+                    ✖
+                  </button>
+                </div>
               </div>
             ))}
           </div>

@@ -87,12 +87,29 @@ export function useSocial(currentUser) {
     });
   };
 
+  const handleDeleteFriends = async (friendIds) => {
+    try {
+      const res = await fetch('http://localhost:3000/api/friendships/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: currentUser.id, friend_ids: friendIds })
+      });
+      if (res.ok) {
+        fetchFriendData();
+      }
+      return res.ok;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
   const clearNotification = (senderId) => {
     setNotifications(prev => prev.filter(id => id !== senderId));
   };
 
   return {
     posts, friendRequests, friendsList, onlineUsers, notifications, loading, setLoading,
-    fetchFeed, fetchFriendData, handleLike, handleComment, handleDeletePost, clearNotification
+    fetchFeed, fetchFriendData, handleLike, handleComment, handleDeletePost, handleDeleteFriends, clearNotification
   };
 }

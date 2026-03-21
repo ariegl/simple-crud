@@ -185,3 +185,39 @@ export const getFriendsList = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener lista de amigos' });
   }
 };
+
+export const deleteFriends = async (req, res) => {
+  try {
+    const { user_id, friend_ids } = req.body;
+    const userId = parseInt(user_id);
+    const friendIds = friend_ids.map(id => parseInt(id));
+
+    if (!friendIds || friendIds.length === 0) {
+      return res.status(400).json({ error: 'No se proporcionaron IDs de amigos' });
+    }
+
+    await prisma.friendship.updateMany({
+      where: {
+        OR: [
+          { requesterId: userId, addresseeId: { in: friendIds } },
+          { requesterId: { in: friendIds }, addresseeId: userId }
+        ],
+        deletedAt: null
+      },
+      data: {
+        deletedAt: new Date()
+      }
+    });
+
+    // Notify all affected users
+    req.io.emit('friendRequestUpdate', { to: userId });
+    friendIds.forEach(id => {
+      req.io.emit('friendRequestUpdate', { to: id });
+    });
+
+    res.json({ message: 'Amigos eliminados correctamente' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al eliminar amigos' });
+  }
+};

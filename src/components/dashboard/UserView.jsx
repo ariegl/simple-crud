@@ -87,6 +87,7 @@ function UserView({ currentUser }) {
           onStatusUpdate={handleFriendStatus} 
           onAddFriend={handleAddFriend} 
           onSelectFriend={openChat}
+          onDeleteFriends={social.handleDeleteFriends}
         />
         {msg && <div className={`alert ${msg.type === 'success' ? 'alert-success' : 'alert-error'} text-white text-xs p-2`}>{msg.text}</div>}
       </div>
