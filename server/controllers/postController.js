@@ -1,37 +1,63 @@
-import pool from '../config/db.js';
+import prisma from '../config/db.js';
 import { getProfilePath } from '../utils/profileHelper.js';
 
 export const getPosts = async (req, res) => {
   try {
-    const [posts] = await pool.query(`
-      SELECT p.id, p.post as content, p.posted_date, p.user_id,
-      u.username, u.profile_image_path,
-      (SELECT COUNT(*) FROM posts_likes WHERE post_id = p.id AND deleted_at IS NULL) as likes_count
-      FROM posts p
-      JOIN users u ON p.user_id = u.id
-      WHERE p.deleted = 0
-      ORDER BY p.posted_date DESC
-    `);
+    const posts = await prisma.post.findMany({
+      where: {
+        deleted: false
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+            profileImagePath: true
+          }
+        },
+        likes: {
+          where: {
+            deletedAt: null
+          }
+        },
+        comments: {
+          where: {
+            deletedAt: null
+          },
+          include: {
+            user: {
+              select: {
+                username: true
+              }
+            }
+          },
+          orderBy: {
+            registeredAt: 'asc'
+          }
+        }
+      },
+      orderBy: {
+        postedDate: 'desc'
+      }
+    });
 
     const processedPosts = posts.map(p => ({
-      ...p,
-      profile_image_path: getProfilePath(p.user_id, p.profile_image_path)
+      id: p.id,
+      content: p.post,
+      posted_date: p.postedDate,
+      user_id: p.userId,
+      username: p.user.username,
+      profile_image_path: getProfilePath(p.userId, p.user.profileImagePath),
+      likes_count: p.likes.length,
+      comments: p.comments.map(c => ({
+        id: c.id,
+        post_id: c.postId,
+        comment: c.comment,
+        registered_at: c.registeredAt,
+        commenter_name: c.user.username
+      }))
     }));
 
-    const [comments] = await pool.query(`
-      SELECT c.id, c.post_id, c.comment, c.registered_at, u.username as commenter_name
-      FROM posts_comments c
-      JOIN users u ON c.user_id = u.id
-      WHERE c.deleted_at IS NULL
-      ORDER BY c.registered_at ASC
-    `);
-
-    const postsWithComments = processedPosts.map(p => ({
-      ...p,
-      comments: comments.filter(c => c.post_id === p.id)
-    }));
-
-    res.json(postsWithComments);
+    res.json(processedPosts);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error fetching feed' });
@@ -42,12 +68,18 @@ export const createPost = async (req, res) => {
   try {
     const { user_id, post } = req.body;
     if (!user_id || !post) return res.status(400).json({ error: 'Missing user_id or content' });
-    const [result] = await pool.execute('INSERT INTO posts (user_id, post) VALUES (?, ?)', [user_id, post]);
+    
+    const newPost = await prisma.post.create({
+      data: {
+        userId: parseInt(user_id),
+        post: post
+      }
+    });
     
     // Real-time update
     req.io.emit('newPost');
     
-    res.status(201).json({ id: result.insertId, message: 'Post created successfully' });
+    res.status(201).json({ id: newPost.id, message: 'Post created successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error creating post' });
@@ -58,31 +90,40 @@ export const toggleLike = async (req, res) => {
   try {
     const { id: post_id } = req.params;
     const { user_id } = req.body;
+    const postId = parseInt(post_id);
+    const userId = parseInt(user_id);
 
     // Check if like exists
-    const [rows] = await pool.query(
-      'SELECT id, deleted_at FROM posts_likes WHERE post_id = ? AND user_id = ?',
-      [post_id, user_id]
-    );
+    const existingLike = await prisma.postLike.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId
+        }
+      }
+    });
 
-    if (rows.length > 0) {
-      const isDeleted = rows[0].deleted_at !== null;
-      const newDeletedAt = isDeleted ? null : new Date().toISOString().slice(0, 19).replace('T', ' ');
+    if (existingLike) {
+      const isDeleted = existingLike.deletedAt !== null;
       
-      await pool.execute(
-        'UPDATE posts_likes SET deleted_at = ? WHERE id = ?',
-        [newDeletedAt, rows[0].id]
-      );
+      await prisma.postLike.update({
+        where: { id: existingLike.id },
+        data: {
+          deletedAt: isDeleted ? null : new Date()
+        }
+      });
       
-      req.io.emit('updateLikes', { post_id });
+      req.io.emit('updateLikes', { post_id: postId });
       return res.json({ message: isDeleted ? 'Liked' : 'Unliked' });
     } else {
-      await pool.execute(
-        'INSERT INTO posts_likes (post_id, user_id) VALUES (?, ?)',
-        [post_id, user_id]
-      );
+      await prisma.postLike.create({
+        data: {
+          postId,
+          userId
+        }
+      });
       
-      req.io.emit('updateLikes', { post_id });
+      req.io.emit('updateLikes', { post_id: postId });
       return res.json({ message: 'Liked' });
     }
   } catch (err) {
@@ -95,16 +136,21 @@ export const addComment = async (req, res) => {
   try {
     const { id: post_id } = req.params;
     const { user_id, comment } = req.body;
+    const postId = parseInt(post_id);
+    const userId = parseInt(user_id);
 
     if (!comment) return res.status(400).json({ error: 'Comment content required' });
 
-    await pool.execute(
-      'INSERT INTO posts_comments (post_id, user_id, comment) VALUES (?, ?, ?)',
-      [post_id, user_id, comment]
-    );
+    const newComment = await prisma.postComment.create({
+      data: {
+        postId,
+        userId,
+        comment
+      }
+    });
     
-    req.io.emit('newComment', { post_id });
-    res.status(201).json({ id: result.insertId, message: 'Comment added' });
+    req.io.emit('newComment', { post_id: postId });
+    res.status(201).json({ id: newComment.id, message: 'Comment added' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error adding comment' });
@@ -115,15 +161,21 @@ export const deletePost = async (req, res) => {
   try {
     const { id: post_id } = req.params;
     const { user_id } = req.body; // To verify ownership
+    const postId = parseInt(post_id);
+    const userId = parseInt(user_id);
 
-    const deletedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    
-    const [result] = await pool.execute(
-      'UPDATE posts SET deleted = 1, deleted_date = ? WHERE id = ? AND user_id = ?',
-      [deletedDate, post_id, user_id]
-    );
+    const updateResult = await prisma.post.updateMany({
+      where: {
+        id: postId,
+        userId: userId
+      },
+      data: {
+        deleted: true,
+        deletedDate: new Date()
+      }
+    });
 
-    if (result.affectedRows === 0) {
+    if (updateResult.count === 0) {
       return res.status(403).json({ error: 'No tienes permiso o el post no existe' });
     }
 
@@ -134,5 +186,3 @@ export const deletePost = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar el post' });
   }
 };
-
-

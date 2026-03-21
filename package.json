@@ -1,7 +1,7 @@
 {
   "name": "simple-crud",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
     "test": "playwright test"
   },
   "dependencies": {
+    "@prisma/client": "^6.4.1",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
@@ -41,7 +42,11 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
     "postcss": "^8.5.8",
+    "prisma": "^6.4.1",
     "tailwindcss": "^4.2.1",
     "vite": "^8.0.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }

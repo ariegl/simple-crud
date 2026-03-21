@@ -1,32 +1,15 @@
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { PrismaClient } from '@prisma/client';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Load .env from project root
-dotenv.config({ path: path.join(__dirname, '../../.env') });
-
-const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD, 
-  database: process.env.DB_NAME
-};
-
-const pool = mysql.createPool(dbConfig);
+const prisma = new PrismaClient();
 
 // Test database connection
 (async () => {
   try {
-    const connection = await pool.getConnection();
-    console.log(`Connected to MySQL database (${process.env.DB_NAME})!`);
-    connection.release();
+    await prisma.$connect();
+    console.log('Connected to database with Prisma!');
   } catch (err) {
-    console.error('Error connecting to MySQL:', err);
+    console.error('Error connecting to database with Prisma:', err);
   }
 })();
 
-export default pool;
+export default prisma;

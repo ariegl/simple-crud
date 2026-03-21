@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
-import pool from '../config/db.js';
+import prisma from '../config/db.js';
 import { getProfilePath, getPartition } from '../utils/profileHelper.js';
 import { fileURLToPath } from 'url';
 
@@ -15,13 +15,20 @@ export const createUser = async (req, res) => {
     if (!username || !age || !gender || !password) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const finalRoleId = role_id || 5; 
-    const registeredAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const [result] = await pool.execute(
-      'INSERT INTO users (username, age, gender, password, registered_date, role_id) VALUES (?, ?, ?, ?, ?, ?)',
-      [username, age, gender, password, registeredAt, finalRoleId]
-    );
-    res.status(201).json({ id: result.insertId, message: 'User created successfully' });
+    const finalRoleId = role_id ? parseInt(role_id) : 5; 
+    
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        age: parseInt(age),
+        gender,
+        password,
+        registeredDate: new Date(),
+        roleId: finalRoleId
+      }
+    });
+
+    res.status(201).json({ id: newUser.id, message: 'User created successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error creating user' });
@@ -30,16 +37,29 @@ export const createUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT u.id, u.username, u.age, u.gender, u.registered_date, r.name as role, u.profile_image_path 
-       FROM users u 
-       LEFT JOIN roles r ON u.role_id = r.id 
-       WHERE u.deleted_at IS NULL`
-    );
-    const usersWithPaths = rows.map(u => ({
-      ...u,
-      profile_image_path: getProfilePath(u.id, u.profile_image_path)
+    const users = await prisma.user.findMany({
+      where: {
+        deletedAt: null
+      },
+      include: {
+        role: {
+          select: {
+            name: true
+          }
+        }
+      }
+    });
+
+    const usersWithPaths = users.map(u => ({
+      id: u.id,
+      username: u.username,
+      age: u.age,
+      gender: u.gender,
+      registered_date: u.registeredDate,
+      role: u.role?.name,
+      profile_image_path: getProfilePath(u.id, u.profileImagePath)
     }));
+
     res.json(usersWithPaths);
   } catch (err) {
     console.error(err);
@@ -50,15 +70,19 @@ export const getUsers = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const [result] = await pool.execute(
-      'UPDATE users SET deleted_at = ? WHERE id = ?', 
-      [deletedAt, id]
-    );
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
+    const userId = parseInt(id);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { deletedAt: new Date() }
+    });
+
     res.json({ message: 'User logically deleted successfully' });
   } catch (err) {
     console.error(err);
+    if (err.code === 'P2025') {
+       return res.status(404).json({ error: 'User not found' });
+    }
     res.status(500).json({ error: 'Error deleting user' });
   }
 };
@@ -68,8 +92,13 @@ export const updateProfileImage = async (req, res) => {
     const userId = parseInt(req.params.id);
     if (!req.file) return res.status(400).json({ error: 'No image uploaded' });
 
-    const [userRows] = await pool.query('SELECT profile_image_path FROM users WHERE id = ?', [userId]);
-    const oldUuid = userRows[0]?.profile_image_path;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { profileImagePath: true }
+    });
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const oldUuid = user.profileImagePath;
 
     const partition = getPartition(userId);
     const partitionDir = path.join(__dirname, `../../storage/profiles/${partition}`);
@@ -89,7 +118,11 @@ export const updateProfileImage = async (req, res) => {
       if (fs.existsSync(oldFullPath)) fs.unlinkSync(oldFullPath);
     }
 
-    await pool.execute('UPDATE users SET profile_image_path = ? WHERE id = ?', [newUuid, userId]);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { profileImagePath: newUuid }
+    });
+
     res.json({ message: 'Profile image updated', path: getProfilePath(userId, newUuid) });
   } catch (err) {
     console.error(err);
