@@ -23,7 +23,6 @@ function PostCard({ post, currentUser, onlineUsers, onLike, onComment, onDelete,
             <div>
               <div className="font-bold text-sm leading-tight flex items-center gap-2">
                 {post.username}
-                {onlineUsers.includes(post.user_id) && <span className="w-2 h-2 rounded-full bg-success"></span>}
               </div>
               <div className="text-[10px] opacity-40">{new Date(post.posted_date).toLocaleString(language)}</div>
             </div>
