@@ -26,7 +26,19 @@
     "listTitle": "Record Listing",
     "searchPlaceholder": "Search by username...",
     "newUser": "New User",
-    "years": "years"
+    "years": "years",
+    "send": "Send"
+  },
+  "social": {
+    "commentPlaceholder": "Comment...",
+    "online": "Online",
+    "offline": "Offline",
+    "newPost": "+ New Post",
+    "changePhoto": "Change",
+    "friends": "Friends",
+    "requests": "Requests",
+    "noFriends": "You don't have friends yet.",
+    "addFriendPlaceholder": "User..."
   },
   "login": {
     "title": "Login",

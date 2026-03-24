@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import ConfirmModal from '../shared/ConfirmModal';
 
 function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers, onStatusUpdate, onAddFriend, onSelectFriend, onDeleteFriends }) {
+  const { t } = useTranslation();
   const [friendUsername, setFriendUsername] = useState('');
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [deleteCandidate, setDeleteCandidate] = useState(null); // Array of objects { friend_id, username }
@@ -46,7 +48,7 @@ function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers
       {friendRequests.length > 0 && (
         <div className="card bg-base-100 shadow-xl border border-base-200">
           <div className="card-body p-4">
-            <h3 className="text-sm font-bold flex items-center gap-2">Solicitudes <span className="badge badge-primary badge-sm">{friendRequests.length}</span></h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">{t('social.requests')} <span className="badge badge-primary badge-sm">{friendRequests.length}</span></h3>
             <div className="space-y-3 mt-2">
               {friendRequests.map(req => (
                 <div key={req.id} className="flex items-center justify-between gap-2 bg-base-200 p-2 rounded-lg">
@@ -68,13 +70,13 @@ function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers
       <div className="card bg-base-100 shadow-xl border border-base-200">
         <div className="card-body p-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-bold">Amigos</h3>
+            <h3 className="text-sm font-bold">{t('social.friends')}</h3>
             {selectedFriends.length > 0 && (
-              <button onClick={handleBulkDeleteClick} className="btn btn-error btn-xs">Eliminar ({selectedFriends.length})</button>
+              <button onClick={handleBulkDeleteClick} className="btn btn-error btn-xs">{t('common.actions.delete')} ({selectedFriends.length})</button>
             )}
           </div>
           <div className="space-y-3 mt-2">
-            {friendsList.length === 0 && <p className="text-xs opacity-50">Aún no tienes amigos.</p>}
+            {friendsList.length === 0 && <p className="text-xs opacity-50">{t('social.noFriends')}</p>}
             {friendsList.map(f => (
               <div 
                 key={f.friend_id} 
@@ -97,7 +99,7 @@ function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`text-[10px] ${onlineUsers.includes(f.friend_id) ? 'text-success' : 'opacity-40'}`}>
-                    {onlineUsers.includes(f.friend_id) ? 'Online' : 'Offline'}
+                    {onlineUsers.includes(f.friend_id) ? t('social.online') : t('social.offline')}
                   </span>
                   <button 
                     onClick={(e) => handleDeleteClick(e, f)} 
@@ -111,7 +113,7 @@ function FriendshipPanel({ currentUser, friendRequests, friendsList, onlineUsers
           </div>
           <div className="mt-4 border-t border-base-200 pt-4">
             <div className="flex gap-1">
-              <input type="text" placeholder="User..." className="input input-bordered input-xs flex-1" value={friendUsername} onChange={(e) => setFriendUsername(e.target.value)} />
+              <input type="text" placeholder={t('social.addFriendPlaceholder')} className="input input-bordered input-xs flex-1" value={friendUsername} onChange={(e) => setFriendUsername(e.target.value)} />
               <button onClick={() => { onAddFriend(friendUsername); setFriendUsername(''); }} className="btn btn-primary btn-xs">+</button>
             </div>
           </div>

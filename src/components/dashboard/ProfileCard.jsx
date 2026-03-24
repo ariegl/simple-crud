@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import ImageCropper from '../shared/ImageCropper';
 
 function ProfileCard({ currentUser, onPostCreate }) {
+  const { t } = useTranslation();
   const [profileImage, setProfileImage] = useState(
     currentUser.profile_image_path ? `http://localhost:3000/${currentUser.profile_image_path}` : null
   );
@@ -41,7 +43,7 @@ function ProfileCard({ currentUser, onPostCreate }) {
           <div className="avatar">
             <div className="w-16 h-16 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden bg-base-300 relative group cursor-pointer" onClick={() => fileInputRef.current.click()}>
               {profileImage ? <img src={profileImage} alt="Profile" className="object-cover" /> : <div className="flex items-center justify-center h-full text-xl font-bold">{currentUser.username?.[0].toUpperCase()}</div>}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white transition-opacity">Cambiar</div>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white transition-opacity">{t('social.changePhoto')}</div>
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
             </div>
           </div>
@@ -50,7 +52,7 @@ function ProfileCard({ currentUser, onPostCreate }) {
             <span className="badge badge-secondary badge-xs uppercase font-bold">{currentUser.role}</span>
           </div>
         </div>
-        <button onClick={onPostCreate} className="btn btn-secondary btn-sm w-full mt-4 shadow-lg">+ Nueva Publicación</button>
+        <button onClick={onPostCreate} className="btn btn-secondary btn-sm w-full mt-4 shadow-lg">{t('social.newPost')}</button>
       </div>
 
       {tempImage && (

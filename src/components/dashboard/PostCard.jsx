@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function PostCard({ post, currentUser, onlineUsers, onLike, onComment, onDelete, language }) {
+  const { t } = useTranslation();
   const [commentText, setCommentText] = useState('');
 
   const handleCommentSubmit = (e) => {
@@ -27,7 +29,7 @@ function PostCard({ post, currentUser, onlineUsers, onLike, onComment, onDelete,
               <div className="text-[10px] opacity-40">{new Date(post.posted_date).toLocaleString(language)}</div>
             </div>
           </div>
-          {post.user_id === currentUser.id && <button onClick={() => onDelete(post.id)} className="btn btn-ghost btn-xs text-error opacity-30 hover:opacity-100">Eliminar</button>}
+          {post.user_id === currentUser.id && <button onClick={() => onDelete(post.id)} className="btn btn-ghost btn-xs text-error opacity-30 hover:opacity-100">{t('common.actions.delete')}</button>}
         </div>
         <p className="text-base mb-4 whitespace-pre-wrap">{post.content}</p>
         <div className="flex items-center gap-6 border-t border-base-200 pt-3">
@@ -44,8 +46,8 @@ function PostCard({ post, currentUser, onlineUsers, onLike, onComment, onDelete,
           </div>
         )}
         <div className="mt-4 flex gap-2">
-          <input type="text" className="input input-bordered input-sm flex-1 bg-base-50" placeholder="Comentar..." value={commentText} onChange={(e) => setCommentText(e.target.value)} onKeyPress={handleCommentSubmit} />
-          <button onClick={handleCommentSubmit} className="btn btn-primary btn-sm px-4">Enviar</button>
+          <input type="text" className="input input-bordered input-sm flex-1 bg-base-50" placeholder={t('social.commentPlaceholder')} value={commentText} onChange={(e) => setCommentText(e.target.value)} onKeyPress={handleCommentSubmit} />
+          <button onClick={handleCommentSubmit} className="btn btn-primary btn-sm px-4">{t('common.send')}</button>
         </div>
       </div>
     </div>

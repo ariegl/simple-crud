@@ -26,7 +26,19 @@
     "listTitle": "Listado de Registros",
     "searchPlaceholder": "Buscar por nombre de usuario...",
     "newUser": "Nuevo Usuario",
-    "years": "años"
+    "years": "años",
+    "send": "Enviar"
+  },
+  "social": {
+    "commentPlaceholder": "Comentar...",
+    "online": "Online",
+    "offline": "Offline",
+    "newPost": "+ Nueva Publicación",
+    "changePhoto": "Cambiar",
+    "friends": "Amigos",
+    "requests": "Solicitudes",
+    "noFriends": "Aún no tienes amigos.",
+    "addFriendPlaceholder": "Usuario..."
   },
   "login": {
     "title": "Iniciar Sesión",
