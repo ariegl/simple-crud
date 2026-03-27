@@ -1,0 +1,9 @@
+node_modules
+dist
+storage
+.env
+.git
+.playwright
+test-results
+coverage
+*.log
