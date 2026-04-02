@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import LinkifiedText from '../shared/LinkifiedText';
+import { formatTimeAgo } from '../../utils/timeUtils';
 
 function PostCard({ post, currentUser, onlineUsers, onLike, onComment, onDelete, language }) {
   const { t } = useTranslation();
   const [commentText, setCommentText] = useState('');
+  const [timeAgo, setTimeAgo] = useState('');
+
+  useEffect(() => {
+    const update = () => setTimeAgo(formatTimeAgo(post.posted_date));
+    update(); // Initial update
+    const intervalId = setInterval(update, 60000); // Update every minute
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [post.posted_date]);
 
   const handleCommentSubmit = (e) => {
     if (e.key === 'Enter' || e.type === 'click') {
@@ -27,7 +36,7 @@ function PostCard({ post, currentUser, onlineUsers, onLike, onComment, onDelete,
               <div className="font-bold text-sm leading-tight flex items-center gap-2">
                 {post.username}
               </div>
-              <div className="text-[10px] opacity-40">{new Date(post.posted_date).toLocaleString(language)}</div>
+              <div className="text-[10px] opacity-40">{timeAgo}</div>
             </div>
           </div>
           {post.user_id === currentUser.id && <button onClick={() => onDelete(post.id)} className="btn btn-ghost btn-xs text-error opacity-30 hover:opacity-100">{t('common.actions.delete')}</button>}
